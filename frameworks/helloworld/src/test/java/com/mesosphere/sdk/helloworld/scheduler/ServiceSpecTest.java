@@ -93,4 +93,9 @@ public class ServiceSpecTest extends BaseServiceSpecTest {
     public void testMultiStepPlan() throws Exception {
         testYaml("examples/multistep_plan.yml");
     }
+
+    @Test
+    public void testTLS() throws Exception {
+        testYaml("examples/tls.yml");
+    }
 }
