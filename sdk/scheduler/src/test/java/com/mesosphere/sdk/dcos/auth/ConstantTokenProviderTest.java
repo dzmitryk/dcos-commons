@@ -34,7 +34,7 @@ public class ConstantTokenProviderTest {
     public void testToken() throws IOException, NoSuchAlgorithmException {
         String testToken = createToken();
         TokenProvider tokenProvider = new ConstantTokenProvider(testToken);
-        Assert.assertEquals(tokenProvider.getToken().getValue(), testToken);
+        Assert.assertEquals(tokenProvider.getToken().getToken(), testToken);
     }
 
 }

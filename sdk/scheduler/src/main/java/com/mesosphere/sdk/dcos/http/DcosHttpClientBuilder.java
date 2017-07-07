@@ -62,7 +62,7 @@ public class DcosHttpClientBuilder extends org.apache.http.impl.client.HttpClien
      */
     public DcosHttpClientBuilder setTokenProvider(TokenProvider provider) {
         this.addInterceptorFirst((HttpRequestInterceptor) (request, context) ->
-                request.addHeader("Authorization", String.format("token=%s", provider.getToken().getValue())));
+                request.addHeader("Authorization", String.format("token=%s", provider.getToken().getToken())));
         return this;
     }
 

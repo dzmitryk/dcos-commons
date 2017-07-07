@@ -2,6 +2,7 @@ package com.mesosphere.sdk.dcos.auth;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mesosphere.sdk.dcos.http.DcosHttpClientBuilder;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
@@ -56,7 +57,7 @@ public class ServiceAccountIAMTokenProvider implements TokenProvider {
     }
 
     @Override
-    public Token getToken() throws IOException {
+    public DecodedJWT getToken() throws IOException {
         String serviceLoginToken = JWT.create()
                     .withClaim("uid", uid)
                     .withExpiresAt(Date.from(Instant.now().plusSeconds(120)))
@@ -72,7 +73,7 @@ public class ServiceAccountIAMTokenProvider implements TokenProvider {
         Response response = httpExecutor.execute(request);
 
         JSONObject responseData = new JSONObject(response.returnContent().asString());
-        return new Token(responseData.getString("token"));
+        return JWT.decode(responseData.getString("token"));
     }
 
     /**

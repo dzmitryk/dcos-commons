@@ -1,5 +1,7 @@
 package com.mesosphere.sdk.dcos.auth;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 import java.io.IOException;
 
 /**
@@ -7,6 +9,6 @@ import java.io.IOException;
  */
 public interface TokenProvider {
 
-    public Token getToken() throws IOException;
+    public DecodedJWT getToken() throws IOException;
 
 }

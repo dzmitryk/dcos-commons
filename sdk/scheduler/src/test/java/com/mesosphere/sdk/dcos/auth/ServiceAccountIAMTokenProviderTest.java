@@ -1,6 +1,7 @@
 package com.mesosphere.sdk.dcos.auth;
 
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.junit.Assert;
 import org.junit.Before;
@@ -67,9 +68,9 @@ public class ServiceAccountIAMTokenProviderTest {
                 .setPrivateKey((RSAPrivateKey) keyPair.getPrivate())
                 .setDisableTLSVerification(true)
                 .build();
-        Token token = provider.getToken();
+        DecodedJWT token = provider.getToken();
 
-        Assert.assertTrue(token.getValue().length() > 0);
+        Assert.assertTrue(token.getToken().length() > 0);
 
     }
 
