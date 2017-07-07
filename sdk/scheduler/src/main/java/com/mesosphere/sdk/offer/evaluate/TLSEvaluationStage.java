@@ -134,8 +134,10 @@ public class TLSEvaluationStage implements OfferEvaluationStage {
             tlsSecrets.put(secretNameGenerator.getPrivateKeyPath(), secretNameGenerator.getPrivateKeyMountPath());
             tlsSecrets.put(secretNameGenerator.getRootCACertPath(), secretNameGenerator.getRootCACertMountPath());
         } else if (transportEncryptionSpec.getType().equals(TransportEncryptionSpec.Type.KEYSTORE)) {
-            tlsSecrets.put(secretNameGenerator.getKeyStorePath(), secretNameGenerator.getKeyStoreMountPath());
-            tlsSecrets.put(secretNameGenerator.getTrustStorePath(), secretNameGenerator.getTrustStoreMountPath());
+            tlsSecrets.put(
+                    secretNameGenerator.getKeyStorePath(), secretNameGenerator.getKeyStoreMountPath());
+            tlsSecrets.put(
+                    secretNameGenerator.getTrustStorePath(), secretNameGenerator.getTrustStoreMountPath());
         }
 
         Collection<Protos.Volume> volumes = new ArrayList<>();

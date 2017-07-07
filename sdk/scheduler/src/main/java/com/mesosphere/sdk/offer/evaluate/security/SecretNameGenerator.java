@@ -65,11 +65,11 @@ public class SecretNameGenerator {
     }
 
     public String getKeyStoreMountPath() {
-        return getMountPath("keystore");
+        return withBase64Suffix(getMountPath("keystore"));
     }
 
     public String getTrustStoreMountPath() {
-        return getMountPath("truststore");
+        return withBase64Suffix(getMountPath("truststore"));
     }
 
     private String getSecretPath(String name) {
@@ -80,4 +80,8 @@ public class SecretNameGenerator {
         return String.format("%s.%s", transportEncryptionName, suffix);
     }
 
+    // This should get removed once secrets store will support binary data
+    private String withBase64Suffix(String path) {
+        return path + ".base64";
+    }
 }

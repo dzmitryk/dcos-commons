@@ -115,16 +115,12 @@ def test_tls_basics(service_account):
     task_id = tasks.get_task_ids(PACKAGE_NAME, "tls")[0]
     assert task_id
 
-    # Convert base64 encoded files to binary
-    _base64_decode_keystore(task_id, 'keystore.keystore', 'keystore.jks')
-    _base64_decode_keystore(task_id, 'keystore.truststore', 'truststore.jks')
-
     # Load end-entity certificate from keystore and root CA cert from truststore
     end_entity_cert = _export_cert_from_task_keystore(
-        task_id, 'keystore.jks', 'cert')
+        task_id, 'keystore.keystore', 'cert')
 
     root_ca_cert_in_truststore = _export_cert_from_task_keystore(
-        task_id, 'truststore.jks', 'dcos-root')
+        task_id, 'keystore.truststore', 'dcos-root')
 
     # Check that certificate subject maches the service name
     common_name = end_entity_cert.subject.get_attributes_for_oid(
@@ -147,15 +143,6 @@ def test_tls_basics(service_account):
 def task_exec(task_name, command):
     return cmd.run_cli(
         "task exec {} {}".format(task_name, command))
-
-
-def _base64_decode_keystore(task, source_path, dest_path):
-    return task_exec(task,
-        "bash -c 'cat {source_path} | base64 -d > {dest_path}'".format(
-            source_path=source_path,
-            dest_path=dest_path
-        )
-    )
 
 
 def _export_cert_from_task_keystore(

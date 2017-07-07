@@ -59,12 +59,12 @@ public class SecretNameGeneratorTest {
 
     @Test
     public void getKeyStoreMountPath() throws Exception {
-        Assert.assertEquals(DEFAULT_GENERATOR.getKeyStoreMountPath(), "exposed.keystore");
+        Assert.assertEquals(DEFAULT_GENERATOR.getKeyStoreMountPath(), "exposed.keystore.base64");
     }
 
     @Test
     public void getTrustStoreMountPath() throws Exception {
-        Assert.assertEquals(DEFAULT_GENERATOR.getTrustStoreMountPath(), "exposed.truststore");
+        Assert.assertEquals(DEFAULT_GENERATOR.getTrustStoreMountPath(), "exposed.truststore.base64");
     }
 
 }

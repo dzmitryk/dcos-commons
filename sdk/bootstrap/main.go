@@ -2,11 +2,9 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"flag"
 	"fmt"
-	// TODO switch to upstream once https://github.com/hoisie/mustache/pull/57 is merged:
-	"github.com/aryann/difflib"
-	"github.com/nickbp/mustache"
 	"io/ioutil"
 	"log"
 	"net"
@@ -17,6 +15,10 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	// TODO switch to upstream once https://github.com/hoisie/mustache/pull/57 is merged:
+	"github.com/aryann/difflib"
+	"github.com/nickbp/mustache"
 )
 
 // arg handling
@@ -50,6 +52,9 @@ type args struct {
 
 	// Get Task IP
 	getTaskIp bool
+
+	// Whether to decode java keystore secrets files from base64 to binary
+	decodeKeystores bool
 }
 
 func parseArgs() args {
@@ -78,6 +83,10 @@ func parseArgs() args {
 		"Whether to install certs from .ssl to the JRE.")
 
 	flag.BoolVar(&args.getTaskIp, "get-task-ip", false, "Print task IP")
+
+	flag.BoolVar(&args.decodeKeystores, "decode-keystores", true,
+		"Decodes any *.keystore.base64 and *.truststore.base64 files in mesos " +
+		"sandbox from Base64 to binary format and stores them without base64 suffix")
 
 	flag.Parse()
 
@@ -305,6 +314,49 @@ func installDCOSCertIntoJRE() {
 	log.Println("Successfully installed the certificate.")
 }
 
+func decodeKeystores() error {
+	mesosSandbox := os.Getenv("MESOS_SANDBOX")
+	matches, err := filepath.Glob(mesosSandbox + "/**.keystore.base64")
+	if err != nil {
+		return err
+	}
+
+	truststoreMatches, err := filepath.Glob(
+		mesosSandbox + "/**.truststore.base64")
+	if err != nil {
+		return err
+	}
+
+	matches = append(matches, truststoreMatches...)
+	if len(matches) == 0 {
+		log.Println("No keystore files found to be decoded")
+	} else {
+		log.Printf("Decoding %d keystore files from Base64\n", len(matches))
+	}
+
+	// Decode each file
+	for _, path := range matches {
+		srcFileStat, err := os.Stat(path)
+		if err != nil {
+			return err
+		}
+
+		srcData, err := ioutil.ReadFile(path)
+		if err != nil {
+			return err
+		}
+
+		dstData := make([]byte, base64.StdEncoding.EncodedLen(len(srcData)))
+		base64.StdEncoding.Decode(dstData, srcData)
+
+		dstPath := strings.TrimSuffix(path, ".base64")
+		ioutil.WriteFile(dstPath, dstData, srcFileStat.Mode())
+		log.Printf("Decoded Base64 file '%s' -> '%s'\n", path, dstData)
+	}
+
+	return nil
+}
+
 func isDir(path string) (bool, error) {
 	fi, err := os.Stat(path)
 	if err != nil {
@@ -402,6 +454,11 @@ func main() {
 	if args.installCerts {
 		installDCOSCertIntoJRE()
 	}
+
+	if args.decodeKeystores {
+		decodeKeystores()
+	}
+
 	log.Printf("Local IP --> %s", pod_ip)
 	log.Printf("SDK Bootstrap successful.")
 }
