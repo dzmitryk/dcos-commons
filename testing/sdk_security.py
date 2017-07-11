@@ -102,20 +102,66 @@ def grant_volumes(dcosurl, token, role, account):
     create_and_assign_permission(dcosurl, token, fq_role, account, description, action="delete")
 
 
-def grant_all(role, account):
-    utils.out("Granting permissions to {account}...".format(
-        account=account
+def grant_all(dcosurl, token, role, account):
+    utils.out("Granting permissions to {account}...".format(account=account))
+    grant_registration(dcosurl, token, role, account)
+    grant_task_execution(dcosurl, token, role, account)
+    grant_resources(dcosurl, token, role, account)
+    grant_volumes(dcosurl, token, role, account)
+    utils.out("Permission setup completed for {account}".format(account=account))
+
+
+def create_service_account(account, secret_name):
+    utils.out('Creating service account for account={account} secret={secret_name}'.format(
+        account=account,
+        secret_name=secret_name
     ))
+
+    utils.out('Install cli necessary for security')
+    install_enterprise_cli_cmd = 'package install dcos-enterprise-cli --package-version=1.0.7'
+    out, err, rc = shakedown.run_dcos_command(install_enterprise_cli_cmd)
+    if not rc:
+        raise Exception('Failed to install dcos-enterprise cli extension')
+
+    utils.out('Create keypair')
+    create_keypair_cmd = 'security org service-accounts keypair private-key.pem public-key.pem'
+    out, err, rc = shakedown.run_dcos_command(create_keypair_cmd)
+    if not rc:
+        raise Exception('Failed to create keypair for testing service account')
+
+    utils.out('Create service account')
+    delete_account_cmd = 'security org service-accounts delete "{account}"'.format(account=account)
+    out, err, rc = shakedown.run_dcos_command(delete_account_cmd)
+    create_account_cmd = 'security org service-accounts create -p public-key.pem -d "My service account" "{account}"'.
+        format(account=account)
+    out, err, rc = shakedown.run_dcos_command(create_account_cmd)
+    if not rc:
+        raise Exception('Failed to create service account "{account}"'.format(account=account))
+
+    utils.out('Create secret')
+    delete_secret_cmd = 'security secrets delete "{secret_name}"'.format(secret_name=secret_name)
+    out, err, rc = shakedown.run_dcos_command(delete_secret_cmd)
+    create_secret_cmd = 'dcos security secrets create-sa-secret --strict private-key.pem "{account}" "{secret_name}"'.
+        format(account=account, secret_name=secret_name)
+    out, err, rc = shakedown.run_dcos_command(create_secret_cmd)
+    if not rc:
+        raise Exception('Failed to create secret "{secret_name}" for service account "{account}"'.format(
+            account=account,
+            secret_name=secret_name
+        ))
+
+    utils.out('Service account created for account={account} secret={secret_name}'.format(
+        account=account,
+        secret_name=secret_name
+    ))
+
+
+def configure_security(role, account='service-acct', secret_name='secret'):
 
     # TODO (kwood): what should these *really* be?
     dcosurl = "http://localhost:61001"
     token, _, _ = shakedown.run_dcos_command('config show core.dcos_acs_token')
     token = auth_token.strip()
 
-    grant_registration(dcosurl, token, role, account)
-    grant_task_execution(dcosurl, token, role, account)
-    grant_resources(dcosurl, token, role, account)
-    grant_volumes(dcosurl, token, role, account)
-    utils.out("Permission setup completed for {account}".format(
-        account=account
-    ))
+    create_service_account(account, secret_name)
+    gran_all(dcosurl, token, role, account)
