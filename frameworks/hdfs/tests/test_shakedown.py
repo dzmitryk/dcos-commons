@@ -12,7 +12,6 @@ import sdk_plan as plan
 import sdk_tasks as tasks
 import sdk_utils as utils
 import sdk_metrics as metrics
-import sdk_test_upgrade
 from tests.config import *
 
 def setup_module(module):
@@ -332,18 +331,6 @@ def test_modify_app_config_rollback():
 @utils.dcos_1_9_or_higher
 def test_metrics():
     metrics.wait_for_any_metrics(FOLDERED_SERVICE_NAME, "journal-0-node", DEFAULT_HDFS_TIMEOUT)
-
-
-@pytest.mark.upgrade
-@pytest.mark.sanity
-def test_upgrade_downgrade():
-    options = {
-        "service": {
-            "beta-optin": True
-        }
-    }
-    sdk_test_upgrade.upgrade_downgrade("beta-{}".format(PACKAGE_NAME), PACKAGE_NAME, DEFAULT_TASK_COUNT,
-                                       additional_options=options)
 
 
 def replace_name_node(index):
