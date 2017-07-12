@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -54,7 +54,7 @@ public class DefaultCAClient implements CertificateAuthorityClient {
     @Override
     public X509Certificate sign(byte[] csr) throws Exception {
         JSONObject data = new JSONObject();
-        data.put("certificate_request", new String(csr, Charset.forName("UTF-8")));
+        data.put("certificate_request", new String(csr, StandardCharsets.UTF_8));
         data.put("profile", "");
 
         Request request = Request.Post(URLHelper.addPathUnchecked(baseURL, "sign").toString())
@@ -75,7 +75,7 @@ public class DefaultCAClient implements CertificateAuthorityClient {
 
         return (X509Certificate) certificateFactory
                 .generateCertificate(
-                        new ByteArrayInputStream(certificate.getBytes(Charset.forName("UTF-8"))));
+                        new ByteArrayInputStream(certificate.getBytes(StandardCharsets.UTF_8)));
     }
 
     @Override
@@ -104,7 +104,7 @@ public class DefaultCAClient implements CertificateAuthorityClient {
         if (bundle.length() > 0) {
             certificates.addAll(
                     (Collection<? extends X509Certificate>) certificateFactory.generateCertificates(
-                            new ByteArrayInputStream(bundle.getBytes("UTF-8")))
+                            new ByteArrayInputStream(bundle.getBytes(StandardCharsets.UTF_8)))
             );
             // Bundle response includes also submitted certificate which we don't need
             // so remove it.
@@ -118,7 +118,7 @@ public class DefaultCAClient implements CertificateAuthorityClient {
         }
 
         certificates.add((X509Certificate) certificateFactory.generateCertificate(
-                new ByteArrayInputStream(rootCACert.getBytes(Charset.forName("UTF-8"))))
+                new ByteArrayInputStream(rootCACert.getBytes(StandardCharsets.UTF_8)))
         );
 
         return certificates;

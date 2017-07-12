@@ -91,7 +91,8 @@ public class TLSEvaluationStage implements OfferEvaluationStage {
             } catch (Exception e) {
                 logger.error("Failed to get certificate ", taskName, e);
                 return EvaluationOutcome.fail(
-                        this, "Failed to store TLS artifacts for task %s because of exception: %s", taskName, e);
+                        this, "Failed to store TLS artifacts for task %s because of exception: %s", taskName, e)
+                        .build();
             }
 
             Collection<Protos.Volume> volumes = getExecutorInfoSecretVolumes(
@@ -110,7 +111,8 @@ public class TLSEvaluationStage implements OfferEvaluationStage {
         }
 
         return EvaluationOutcome.pass(
-                this, null, "TLS certificate created and added to the task");
+                this, "TLS certificate created and added to the task")
+                .build();
 
     }
 

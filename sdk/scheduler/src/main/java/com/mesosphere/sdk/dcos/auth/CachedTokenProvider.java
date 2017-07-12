@@ -61,8 +61,7 @@ public class CachedTokenProvider implements TokenProvider {
             DecodedJWT newToken = provider.getToken();
             token = Optional.of(newToken);
             return newToken;
-        }
-        finally {
+        } finally {
             rwlock.unlock();
         }
     }

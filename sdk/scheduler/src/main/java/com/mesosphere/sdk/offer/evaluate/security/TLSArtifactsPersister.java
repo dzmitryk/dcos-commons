@@ -98,7 +98,6 @@ public class TLSArtifactsPersister {
     /**
      * Removes all existing secrets stored under given namespace.
      * @param secretNameGenerator
-     * @param transportEncryptionName
      * @throws IOException
      * @throws SecretsException
      */
@@ -125,7 +124,7 @@ public class TLSArtifactsPersister {
     private String serializeKeyStoreToBase64(
             KeyStore keyStore) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
         ByteArrayOutputStream keyStoreOs = new ByteArrayOutputStream();
-        keyStore.store(keyStoreOs, TLSArtifacts.KEYSTORE_PASSWORD);
+        keyStore.store(keyStoreOs, TLSArtifacts.getKeystorePassword());
         return Base64.getEncoder().encodeToString(keyStoreOs.toByteArray());
     }
 

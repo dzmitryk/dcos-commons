@@ -96,7 +96,7 @@ public class DefaultTaskSpec implements TaskSpec {
         builder.readinessCheckSpec = copy.getReadinessCheck().orElse(null);
         builder.configFiles = copy.getConfigFiles();
         builder.discoverySpec = copy.getDiscovery().orElse(null);
-	builder.transportEncryption = copy.getTransportEncryption();
+        builder.transportEncryption = copy.getTransportEncryption();
         return builder;
     }
 

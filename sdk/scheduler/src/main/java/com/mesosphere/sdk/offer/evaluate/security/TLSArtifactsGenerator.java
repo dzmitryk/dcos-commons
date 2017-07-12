@@ -1,7 +1,6 @@
 package com.mesosphere.sdk.offer.evaluate.security;
 
 import com.mesosphere.sdk.dcos.CertificateAuthorityClient;
-import com.mesosphere.sdk.dcos.ca.CAException;
 import com.mesosphere.sdk.dcos.ca.PEMHelper;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.*;
@@ -18,7 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -54,7 +53,7 @@ public class TLSArtifactsGenerator {
         X509Certificate certificate = certificateAuthorityClient.sign(generateCSR(keyPair));
 
         // Get end-entity bundle with Root CA certificate
-        ArrayList<X509Certificate> certificateChain = certificateChain = (ArrayList<X509Certificate>)
+        ArrayList<X509Certificate> certificateChain = (ArrayList<X509Certificate>)
                 certificateAuthorityClient.chainWithRootCert(certificate);
 
         // Build end-entity certificate with CA chain without Root CA certificate
@@ -89,7 +88,7 @@ public class TLSArtifactsGenerator {
                 new Certificate[certificateChain.size()]);
 
         // TODO(mh): Make configurable "default" identifier
-        keyStore.setKeyEntry("default", keyPair.getPrivate(), TLSArtifacts.KEYSTORE_PASSWORD, keyStoreChain);
+        keyStore.setKeyEntry("default", keyPair.getPrivate(), TLSArtifacts.getKeystorePassword(), keyStoreChain);
 
         KeyStore trustStore = createEmptyKeyStore();
         trustStore.setCertificateEntry("dcos-root", certificateChain.get(certificateChain.size() - 1));
@@ -137,7 +136,7 @@ public class TLSArtifactsGenerator {
         PKCS10CertificationRequest csr = csrBuilder.build(signer);
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        PemWriter writer = new PemWriter(new OutputStreamWriter(os, Charset.forName("UTF-8")));
+        PemWriter writer = new PemWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
         writer.writeObject(new JcaMiscPEMGenerator(csr));
         writer.flush();
 

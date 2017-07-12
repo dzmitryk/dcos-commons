@@ -114,11 +114,7 @@ public class TLSArtifactsGeneratorTest {
                 PEMHelper.toPEM(chain.get(chain.size() - 1)));
 
         Assert.assertEquals(
-                tlsArtifacts.getKeyStore().getCertificate("cert"),
-                endEntityCert);
-
-        Assert.assertEquals(
-                tlsArtifacts.getKeyStore().getKey("private-key", new char[0]),
+                tlsArtifacts.getKeyStore().getKey("default", TLSArtifacts.getKeystorePassword()),
                 keyPairGeneratorMock.generateKeyPair().getPrivate());
 
         Assert.assertEquals(
@@ -153,11 +149,7 @@ public class TLSArtifactsGeneratorTest {
                 PEMHelper.toPEM(chain.get(chain.size() - 1)));
 
         Assert.assertEquals(
-                tlsArtifacts.getKeyStore().getCertificate("cert"),
-                endEntityCert);
-
-        Assert.assertEquals(
-                tlsArtifacts.getKeyStore().getKey("private-key", new char[0]),
+                tlsArtifacts.getKeyStore().getKey("default", TLSArtifacts.getKeystorePassword()),
                 keyPairGeneratorMock.generateKeyPair().getPrivate());
 
         Assert.assertEquals(
