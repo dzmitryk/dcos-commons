@@ -34,12 +34,17 @@ public class CertificateNamesGenerator {
      * @return
      */
     public GeneralNames getSANs() {
-        String vipWildcardName = String.format("*.%s.autoip.dcos.thisdcos.directory", serviceName);
-        String vipTaskName = String.format("%s.%s.autoip.dcos.thisdcos.directory", taskName, serviceName);
+        String mesosDnsWildcardName = String.format("*.%s.autoip.dcos.thisdcos.directory", serviceName);
+        String mesosDnsName = String.format("%s.%s.autoip.dcos.thisdcos.directory", taskName, serviceName);
+
+        String vipWildcardName = String.format("*.%s.l4lb.thisdcos.directory", serviceName);
+        String vipTaskName = String.format("%s.%s.l4lb.thisdcos.directory", taskName, serviceName);
 
         GeneralNames subAtlNames = new GeneralNames(
                 new GeneralName[]{
+                        new GeneralName(GeneralName.dNSName, mesosDnsName),
                         new GeneralName(GeneralName.dNSName, vipTaskName),
+                        new GeneralName(GeneralName.dNSName, mesosDnsWildcardName),
                         new GeneralName(GeneralName.dNSName, vipWildcardName),
                 }
         );

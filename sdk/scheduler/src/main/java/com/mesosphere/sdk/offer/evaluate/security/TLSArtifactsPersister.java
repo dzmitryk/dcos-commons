@@ -125,7 +125,7 @@ public class TLSArtifactsPersister {
     private String serializeKeyStoreToBase64(
             KeyStore keyStore) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
         ByteArrayOutputStream keyStoreOs = new ByteArrayOutputStream();
-        keyStore.store(keyStoreOs, new char[0]);
+        keyStore.store(keyStoreOs, TLSArtifacts.KEYSTORE_PASSWORD);
         return Base64.getEncoder().encodeToString(keyStoreOs.toByteArray());
     }
 

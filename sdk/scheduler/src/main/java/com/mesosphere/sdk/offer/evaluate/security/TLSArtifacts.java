@@ -13,6 +13,9 @@ public class TLSArtifacts {
     private KeyStore keyStore;
     private KeyStore trustStore;
 
+    // A default password used for securing keystore nad private key in the keystore
+    public static char[] KEYSTORE_PASSWORD = "notsecure".toCharArray();
+
     public TLSArtifacts(
             String certPEM,
             String privateKeyPEM,

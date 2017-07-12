@@ -2,10 +2,11 @@ name: {{FRAMEWORK_NAME}}
 scheduler:
   principal: {{FRAMEWORK_PRINCIPAL}}
 pods:
-  tls:
+
+  # Exposes basic TLS artifacts in a container
+  artifacts:
     count: {{HELLO_COUNT}}
     user: {{SERVICE_USER}}
-    placement: {{HELLO_PLACEMENT}}
     uris:
       - {{BOOTSTRAP_URI}}
     tasks:
@@ -20,7 +21,7 @@ pods:
         env:
           SLEEP_DURATION: {{SLEEP_DURATION}}
         health-check:
-          cmd: stat secure-tls-pod.crt && stat keystore.keystore.base64
+          cmd: stat secure-tls-pod.crt &> /dev/null && stat keystore.keystore.base64 &> /dev/null
           interval: 5
           grace-period: 30
           delay: 0
@@ -31,3 +32,93 @@ pods:
             type: TLS
           - name: keystore
             type: KEYSTORE
+
+  # Runs a webservice over TLS using keystore
+  keystore:
+    count: {{HELLO_COUNT}}
+    user: {{SERVICE_USER}}
+    networks:
+      dcos:
+    uris:
+      - {{BOOTSTRAP_URI}}
+      - "https://s3-us-west-2.amazonaws.com/infinity-artifacts/testing/tls/dropwizard-example-1.2.0-SNAPSHOT.jar"
+      - "https://s3-us-west-2.amazonaws.com/infinity-artifacts/testing/tls/example.tls.yml"
+    tasks:
+      webserver:
+        goal: RUNNING
+        # TODO(mh): Try to remove export statement and use && between commands after ./bootstrap, which may give env
+        cmd: >
+                ./bootstrap -verbose -resolve=false
+
+                export JAVA_HOME=$(ls -d $MESOS_SANDBOX/jre*/); export JAVA_HOME=${JAVA_HOME%/}; export PATH=$(ls -d $JAVA_HOME/bin):$PATH;
+
+                java -jar dropwizard-example-1.2.0-SNAPSHOT.jar server example.tls.yml
+        cpus: 0.5
+        memory: 512
+        env:
+          SLEEP_DURATION: {{SLEEP_DURATION}}
+        health-check:
+          cmd: stat dropwizard.keystore &> /dev/null
+          interval: 5
+          grace-period: 300
+          delay: 0
+          timeout: 10
+          max-consecutive-failures: 3
+        transport-encryption:
+          - name: dropwizard
+            type: KEYSTORE
+        ports:
+          keystore-https:
+            port: 8443
+            vip:
+              prefix: keystore-https
+              port: 443
+
+  nginx:
+    count: {{HELLO_COUNT}}
+    uris:
+      - {{BOOTSTRAP_URI}}
+    image: clamorisse/nginx-ssl-container
+    networks:
+      dcos:
+    tasks:
+      nginx:
+        goal: RUNNING
+        cmd: >
+               cp nginx.crt /opt/site.crt & cp nginx.key /opt/site.key
+
+               env
+
+               nginx
+        cpus: 0.1
+        memory: 256
+        health-check:
+          cmd: stat nginx.crt &> /dev/null
+          interval: 5
+          grace-period: 30
+          delay: 0
+          timeout: 10
+          max-consecutive-failures: 3
+        transport-encryption:
+          - name: nginx
+            type: TLS
+        ports:
+          nginx-https:
+            port: 443
+            vip:
+              prefix: nginx-https
+              port: 443
+
+plans:
+  deploy:
+    strategy: parallel
+    phases:
+      artifacts:
+        strategy: parallel
+        pod: artifacts
+      keystore:
+        strategy: parallel
+        pod: keystore
+      nginx:
+        strategy: parallel
+        pod: nginx

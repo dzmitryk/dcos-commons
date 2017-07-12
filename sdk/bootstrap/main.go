@@ -350,8 +350,10 @@ func decodeKeystores() error {
 		base64.StdEncoding.Decode(dstData, srcData)
 
 		dstPath := strings.TrimSuffix(path, ".base64")
+		// WriteFile truncates file before writing if file exists so there will
+		// be always fresh data
 		ioutil.WriteFile(dstPath, dstData, srcFileStat.Mode())
-		log.Printf("Decoded Base64 file '%s' -> '%s'\n", path, dstData)
+		log.Printf("Decoded Base64 file '%s' -> '%s'\n", path, dstPath)
 	}
 
 	return nil

@@ -82,16 +82,14 @@ public class TLSArtifactsGenerator {
 
         // Create keystore and trust store
         KeyStore keyStore = createEmptyKeyStore();
-        // TODO(mh): Make configurable "cert"
-        keyStore.setCertificateEntry("cert", certificate);
 
         // KeyStore expects complete chain with end-entity certificate
         certificateChain.add(0, certificate);
         Certificate[] keyStoreChain = certificateChain.toArray(
                 new Certificate[certificateChain.size()]);
 
-        // TODO(mh): Make configurable "private-key"
-        keyStore.setKeyEntry("private-key", keyPair.getPrivate(), new char[0], keyStoreChain);
+        // TODO(mh): Make configurable "default" identifier
+        keyStore.setKeyEntry("default", keyPair.getPrivate(), TLSArtifacts.KEYSTORE_PASSWORD, keyStoreChain);
 
         KeyStore trustStore = createEmptyKeyStore();
         trustStore.setCertificateEntry("dcos-root", certificateChain.get(certificateChain.size() - 1));
@@ -102,7 +100,7 @@ public class TLSArtifactsGenerator {
     private KeyStore createEmptyKeyStore()
             throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(null, new char[0]);
+        keyStore.load(null, null);
         return keyStore;
     }
 
