@@ -25,6 +25,9 @@ DEFAULT_BACKEND = default_backend()
 KEYSTORE_TASK_HTTPS_PORT_NAME = 'keystore-https'
 NGINX_TASK_HTTPS_PORT_NAME = 'nginx-https'
 
+# Default keystore passphrase which is hardcoded in dcos-commons implementation
+KEYSTORE_PASS = "notsecure"
+
 
 def create_service_account(name, secret_name=None):
     """
@@ -233,7 +236,7 @@ def task_exec(task_name, command, **kwargs):
 
 
 def _export_cert_from_task_keystore(
-        task, keystore_path, alias, password="notsecure"):
+        task, keystore_path, alias, password=KEYSTORE_PASS):
     """
     Retrieves certificate from the keystore with given alias by executing
     a keytool in context of running container and loads the certificate to

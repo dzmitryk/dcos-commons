@@ -78,7 +78,7 @@ pods:
     count: {{HELLO_COUNT}}
     uris:
       - {{BOOTSTRAP_URI}}
-    image: clamorisse/nginx-ssl-container
+    image: mesosphere/dcos-commons-tls-nginx:0.1
     networks:
       dcos:
     tasks:
