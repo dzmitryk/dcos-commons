@@ -12,29 +12,29 @@ function run_framework_tests {
     FRAMEWORK_DIR=${REPO_ROOT_DIR}/frameworks/${framework}
 
     # Build/upload framework scheduler artifact if one is not directly provided:
-    if [ -z "${!STUB_UNIVERSE_URL}" ]; then
-        STUB_UNIVERSE_URL=$(echo "${framework}_STUB_UNIVERSE_URL" | awk '{print toupper($0)}')
-        # Build/upload framework scheduler:
-        UNIVERSE_URL_PATH=$FRAMEWORK_DIR/${framework}-universe-url
-        UNIVERSE_URL_PATH=$UNIVERSE_URL_PATH ${FRAMEWORK_DIR}/build.sh aws
+    #if [ -z "${!STUB_UNIVERSE_URL}" ]; then
+    #    STUB_UNIVERSE_URL=$(echo "${framework}_STUB_UNIVERSE_URL" | awk '{print toupper($0)}')
+    #    # Build/upload framework scheduler:
+    #    UNIVERSE_URL_PATH=$FRAMEWORK_DIR/${framework}-universe-url
+    #    UNIVERSE_URL_PATH=$UNIVERSE_URL_PATH ${FRAMEWORK_DIR}/build.sh aws
 
-        if [ ! -f "$UNIVERSE_URL_PATH" ]; then
-            echo "Missing universe URL file: $UNIVERSE_URL_PATH"
-            exit 1
-        fi
-        export STUB_UNIVERSE_URL=$(cat $UNIVERSE_URL_PATH)
-        rm -f $UNIVERSE_URL_PATH
-        echo "Built/uploaded stub universe: $STUB_UNIVERSE_URL"
-    else
-        echo "Using provided STUB_UNIVERSE_URL: $STUB_UNIVERSE_URL"
-    fi
+    #    if [ ! -f "$UNIVERSE_URL_PATH" ]; then
+    #        echo "Missing universe URL file: $UNIVERSE_URL_PATH"
+    #        exit 1
+    #    fi
+    #    export STUB_UNIVERSE_URL=$(cat $UNIVERSE_URL_PATH)
+    #    rm -f $UNIVERSE_URL_PATH
+    #    echo "Built/uploaded stub universe: $STUB_UNIVERSE_URL"
+    #else
+    #    echo "Using provided STUB_UNIVERSE_URL: $STUB_UNIVERSE_URL"
+    #fi
 
-    echo Security: $SECURITY
-    if [ "$SECURITY" = "strict" ]; then
-        ${REPO_ROOT_DIR}/tools/setup_permissions.sh root ${framework}-role
-        # include foldered roles (tests exercise with /test/integration/svcname):
-        ${REPO_ROOT_DIR}/tools/setup_permissions.sh root test__integration__${framework}-role
-    fi
+    #echo Security: $SECURITY
+    #if [ "$SECURITY" = "strict" ]; then
+    #    ${REPO_ROOT_DIR}/tools/setup_permissions.sh root ${framework}-role
+    #    # include foldered roles (tests exercise with /test/integration/svcname):
+    #    ${REPO_ROOT_DIR}/tools/setup_permissions.sh root test__integration__${framework}-role
+    #fi
 
     # Run shakedown tests in framework directory:
     TEST_GITHUB_LABEL="${framework}" ${REPO_ROOT_DIR}/tools/run_tests.py shakedown ${FRAMEWORK_DIR}/tests/

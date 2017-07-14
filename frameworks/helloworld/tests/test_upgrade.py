@@ -1,6 +1,6 @@
 import pytest
 
-import sdk_test_upgrade
+import sdk_versions
 
 from tests.config import (
     PACKAGE_NAME,
@@ -9,5 +9,12 @@ from tests.config import (
 
 @pytest.mark.upgrade
 @pytest.mark.sanity
-def test_upgrade_downgrade():
-    sdk_test_upgrade.upgrade_downgrade(PACKAGE_NAME, PACKAGE_NAME, DEFAULT_TASK_COUNT, reinstall_test_version=False)
+def test_upgrade():
+    sdk_versions.upgrade(PACKAGE_NAME, PACKAGE_NAME, DEFAULT_TASK_COUNT, reinstall_test_version=False)
+
+
+@pytest.mark.downgrade
+@pytest.mark.sanity
+def test_downgrade():
+    sdk_versions.downgrade(PACKAGE_NAME, PACKAGE_NAME, DEFAULT_TASK_COUNT, reinstall_test_version=False)
+

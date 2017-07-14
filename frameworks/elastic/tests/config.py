@@ -4,10 +4,10 @@ from functools import wraps
 import shakedown
 
 import sdk_cmd
-import sdk_hosts as hosts
-import sdk_marathon as marathon
+import sdk_hosts
+import sdk_marathon
 import sdk_plan
-import sdk_tasks as tasks
+import sdk_tasks
 import sdk_utils
 
 PACKAGE_NAME = 'elastic'
@@ -72,7 +72,7 @@ def wait_for_expected_nodes_to_exist(service_name=PACKAGE_NAME):
         if result is None:
             return False
         node_count = result["number_of_nodes"]
-        sdk_utils.out('Waiting for {} healthy nodes, got {}'.format(DEFAULT_TASK_COUNT, node_count))
+        sdk_sdk_utils.out('Waiting for {} healthy nodes, got {}'.format(DEFAULT_TASK_COUNT, node_count))
         return node_count == DEFAULT_TASK_COUNT
 
     return shakedown.wait_for(expected_nodes, timeout_seconds=DEFAULT_ELASTIC_TIMEOUT)
@@ -154,11 +154,11 @@ def disable_xpack(service_name=PACKAGE_NAME):
 
 
 def _set_xpack(service_name, is_enabled):
-    config = marathon.get_config(service_name)
+    config = sdk_marathon.get_config(service_name)
     config['env']['TASKCFG_ALL_XPACK_ENABLED'] = is_enabled
-    marathon.update_app(service_name, config)
-    sdk_plan.wait_for_completed_deployment(service_name)
-    tasks.check_running(service_name, DEFAULT_TASK_COUNT)
+    sdk_marathon.update_app(service_name, config)
+    sdk_sdk_plan.wait_for_completed_deployment(service_name)
+    sdk_tasks.check_running(service_name, DEFAULT_TASK_COUNT)
 
 
 def verify_xpack_license(service_name=PACKAGE_NAME):
@@ -229,12 +229,12 @@ def get_document(index_name, index_type, doc_id, service_name=PACKAGE_NAME):
 
 
 def _curl_api(service_name, method, role="master"):
-    host = "http://" + hosts.autoip_host(service_name, "{}-0-node".format(role), _master_zero_http_port(service_name))
+    host = "http://" + sdk_sdk_hosts.autoip_host(service_name, "{}-0-node".format(role), _master_zero_http_port(service_name))
     return ("curl -X{} -s -u elastic:changeme '" + host).format(method)
 
 
 def _master_zero_http_port(service_name):
-    dns = json.loads(sdk_cmd.run_cli(
+    dns = json.loads(sdk_sdk_cmd.run_cli(
         '{} --name={} endpoints master'.format(PACKAGE_NAME, service_name),
         print_output=False))['dns']
     # array will initially look something like this in CCM, with some 9300 ports and some lower ones [
@@ -249,5 +249,5 @@ def _master_zero_http_port(service_name):
     # sort will bubble up "master-0-node.elastic.[...]:1025", the HTTP server host:port
     dns.sort()
     port = dns[0].split(':')[-1]
-    sdk_utils.out("Extracted {} as port for {}".format(port, dns[0]))
+    sdk_sdk_utils.out("Extracted {} as port for {}".format(port, dns[0]))
     return port

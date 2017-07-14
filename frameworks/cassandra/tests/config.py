@@ -2,19 +2,20 @@ import json
 import os
 
 import shakedown
-import sdk_hosts as hosts
-import sdk_jobs as jobs
-import sdk_plan as plan
-import sdk_utils as utils
+import sdk_cmd
+import sdk_hosts
+import sdk_jobs
+import sdk_plan
+import sdk_utils
 
 
 PACKAGE_NAME = 'cassandra'
 DEFAULT_TASK_COUNT = 3
-FOLDERED_SERVICE_NAME = utils.get_foldered_name(PACKAGE_NAME)
+FOLDERED_SERVICE_NAME = sdk_utils.get_foldered_name(PACKAGE_NAME)
 DEFAULT_CASSANDRA_TIMEOUT = 600
 
-DEFAULT_NODE_ADDRESS = os.getenv('CASSANDRA_NODE_ADDRESS', hosts.autoip_host(PACKAGE_NAME, 'node-0-server'))
-FOLDERED_NODE_ADDRESS = hosts.autoip_host(FOLDERED_SERVICE_NAME, 'node-0-server')
+DEFAULT_NODE_ADDRESS = os.getenv('CASSANDRA_NODE_ADDRESS', sdk_hosts.autoip_host(PACKAGE_NAME, 'node-0-server'))
+FOLDERED_NODE_ADDRESS = sdk_hosts.autoip_host(FOLDERED_SERVICE_NAME, 'node-0-server')
 DEFAULT_NODE_PORT = os.getenv('CASSANDRA_NODE_PORT', '9042')
 
 
@@ -50,7 +51,7 @@ def get_verify_data_job(node_address=DEFAULT_NODE_ADDRESS, node_port=DEFAULT_NOD
         'cqlsh --cqlversion=3.4.0 -e "SELECT * FROM testspace2.testtable2;" {address} {port} | grep testkey2'])
     return _get_test_job(
         'verify-data',
-        cmd.format(address=node_address, port=node_port))
+        sdk_cmd.format(address=node_address, port=node_port))
 
 
 def get_verify_deletion_job(node_address=DEFAULT_NODE_ADDRESS, node_port=DEFAULT_NODE_PORT):
@@ -59,7 +60,7 @@ def get_verify_deletion_job(node_address=DEFAULT_NODE_ADDRESS, node_port=DEFAULT
         'cqlsh --cqlversion=3.4.0 -e "SELECT * FROM system_schema.tables WHERE keyspace_name=\'testspace2\';" {address} {port} | grep "0 rows"'])
     return _get_test_job(
         'verify-deletion',
-        cmd.format(address=node_address, port=node_port))
+        sdk_cmd.format(address=node_address, port=node_port))
 
 
 def get_write_data_job(node_address=DEFAULT_NODE_ADDRESS, node_port=DEFAULT_NODE_PORT):
@@ -91,26 +92,26 @@ def run_backup_and_restore(
 
     # Write data to Cassandra with a metronome job, then verify it was written
     # Note: Write job will fail if data already exists
-    jobs.run_job(write_data_job)
-    jobs.run_job(verify_data_job)
+    sdk_jobs.run_job(write_data_job)
+    sdk_jobs.run_job(verify_data_job)
 
     # Run backup plan, uploading snapshots and schema to the cloudddd
-    plan.start_plan(service_name, backup_plan, parameters=plan_parameters)
-    plan.wait_for_completed_plan(service_name, backup_plan)
+    sdk_plan.start_plan(service_name, backup_plan, parameters=plan_parameters)
+    sdk_plan.wait_for_completed_plan(service_name, backup_plan)
 
     # Delete all keyspaces and tables with a metronome job
-    jobs.run_job(delete_data_job)
+    sdk_jobs.run_job(delete_data_job)
 
     # Verify that the keyspaces and tables were deleted
-    jobs.run_job(verify_deletion_job)
+    sdk_jobs.run_job(verify_deletion_job)
 
     # Run restore plan, retrieving snapshots and schema from S3
-    plan.start_plan(service_name, restore_plan, parameters=plan_parameters)
-    plan.wait_for_completed_plan(service_name, restore_plan)
+    sdk_plan.start_plan(service_name, restore_plan, parameters=plan_parameters)
+    sdk_plan.wait_for_completed_plan(service_name, restore_plan)
 
     # Verify that the data we wrote and then deleted has been restored
-    jobs.run_job(verify_data_job)
+    sdk_jobs.run_job(verify_data_job)
 
     # Delete data in preparation for any other backup tests
-    jobs.run_job(delete_data_job)
-    jobs.run_job(verify_deletion_job)
+    sdk_jobs.run_job(delete_data_job)
+    sdk_jobs.run_job(verify_deletion_job)

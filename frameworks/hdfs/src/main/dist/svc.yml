@@ -60,11 +60,11 @@ pods:
             if [ ! -d journal-data/hdfs ]; then
               exit 0
             else
-              curl http://journal-$POD_INSTANCE_INDEX-node.hdfs.autoip.dcos.thisdcos.directory:{{TASKCFG_ALL_JOURNAL_NODE_HTTP_PORT}}/jmx > tmpJmx.json &&
+              curl http://journal-$POD_INSTANCE_INDEX-node.{{FRAMEWORK_NAME}}.autoip.dcos.thisdcos.directory:{{TASKCFG_ALL_JOURNAL_NODE_HTTP_PORT}}/jmx > tmpJmx.json &&
               export JOURNAL_NUM_OPS=$(grep "JournalNumOps" tmpJmx.json | sed s/,//g | awk '{print $3}') &&
               [[ $JOURNAL_NUM_OPS -gt 0 ]]
             fi
-          delay: 60
+          delay: 30
           interval: 3
           timeout: 1
         {{/JOURNAL_READINESS_CHECK_ENABLED}}
@@ -279,7 +279,7 @@ pods:
         readiness-check:
           cmd: export TASK_IP=$(./bootstrap --get-task-ip) && MATCH="$(./{{HDFS_VERSION}}/bin/hdfs dfsadmin -report | grep $TASK_IP | wc -l)" && [[ $MATCH -ge 1 ]]
           interval: 10
-          delay: 120
+          delay: 60
           timeout: 60
 
 plans:

@@ -13,6 +13,7 @@ import sdk_plan
 import sdk_tasks
 import sdk_utils
 
+DEFAULT_TIMEOUT_SECONDS = 15 * 60
 
 def install(
         package_name,
@@ -21,7 +22,7 @@ def install(
         additional_options={},
         package_version=None,
         check_suppression=True,
-        timeout_seconds=15 * 60):
+        timeout_seconds=DEFAULT_TIMEOUT_SECONDS):
     if not service_name:
         service_name = package_name
     start = time.time()
