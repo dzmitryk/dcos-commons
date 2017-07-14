@@ -1,5 +1,6 @@
 package com.mesosphere.sdk.offer.evaluate.security;
 
+import com.mesosphere.sdk.api.EndpointUtils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
@@ -25,7 +26,7 @@ public class CertificateNamesGenerator {
        // TODO(mh): Should we somehow improve certificate name here? Right now it reflects only service
        //           name. Should we somehow add pod name and requested certificate name?
        return new CertificateSubjectBuilder()
-                .setCommonName(serviceName)
+                .setCommonName(removeSlashes(serviceName))
                 .build();
     }
 
@@ -34,22 +35,30 @@ public class CertificateNamesGenerator {
      * @return
      */
     public GeneralNames getSANs() {
-        String mesosDnsWildcardName = String.format("*.%s.autoip.dcos.thisdcos.directory", serviceName);
-        String mesosDnsName = String.format("%s.%s.autoip.dcos.thisdcos.directory", taskName, serviceName);
+        String autoIpWildcardName = EndpointUtils.toAutoIpHostname(serviceName, "*");
+        String autoIpTaskName = EndpointUtils.toAutoIpHostname(serviceName, taskName);
 
-        String vipWildcardName = String.format("*.%s.l4lb.thisdcos.directory", serviceName);
-        String vipTaskName = String.format("%s.%s.l4lb.thisdcos.directory", taskName, serviceName);
+        EndpointUtils.VipInfo vipInfo = new EndpointUtils.VipInfo("*", 0);
+        String vipWildcardName = EndpointUtils.toVipHostname(serviceName, vipInfo);
+
+        // TODO(mh): Include all VIP names from TaskSpec
 
         GeneralNames subAtlNames = new GeneralNames(
                 new GeneralName[]{
-                        new GeneralName(GeneralName.dNSName, mesosDnsName),
-                        new GeneralName(GeneralName.dNSName, vipTaskName),
-                        new GeneralName(GeneralName.dNSName, mesosDnsWildcardName),
+                        new GeneralName(GeneralName.dNSName, autoIpTaskName),
+                        new GeneralName(GeneralName.dNSName, autoIpWildcardName),
                         new GeneralName(GeneralName.dNSName, vipWildcardName),
                 }
         );
 
         return subAtlNames;
+    }
+
+    /**
+     * "/group1/group2/group3/group4/group5/kafka" => "group1group2group3group4group5kafka".
+     */
+    private static String removeSlashes(String name) {
+        return name.replace("/", "");
     }
 
 }

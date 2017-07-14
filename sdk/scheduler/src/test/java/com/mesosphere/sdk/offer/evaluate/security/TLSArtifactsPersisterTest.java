@@ -29,6 +29,8 @@ public class TLSArtifactsPersisterTest {
     @Captor
     ArgumentCaptor<Secret> secretCaptor;
 
+    private SecretNameGenerator secretNameGenerator;
+
     private KeyStore createEmptyKeyStore()
             throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -39,13 +41,12 @@ public class TLSArtifactsPersisterTest {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
+        secretNameGenerator = new SecretNameGenerator(
+                "serviceName", "taskName", "name");
     }
 
     @Test
     public void testPersist() throws Exception {
-        SecretNameGenerator secretNameGenerator = new SecretNameGenerator(
-                "serviceName", "taskName", "name");
-
         TLSArtifactsPersister persister = new TLSArtifactsPersister(
                 secretsClientMock, "serviceName");
 
@@ -81,9 +82,6 @@ public class TLSArtifactsPersisterTest {
 
     @Test
     public void testIsArtifactCompleteWhenPartiallyPopullated() throws Exception {
-        SecretNameGenerator secretNameGenerator = new SecretNameGenerator(
-                "serviceName", "taskName", "name");
-
         TLSArtifactsPersister persister = new TLSArtifactsPersister(
                 secretsClientMock, "serviceName");
 
@@ -98,9 +96,6 @@ public class TLSArtifactsPersisterTest {
 
     @Test
     public void testIsArtifactCompleteWhenComplete() throws Exception {
-        SecretNameGenerator secretNameGenerator = new SecretNameGenerator(
-                "serviceName", "taskName", "name");
-
         TLSArtifactsPersister persister = new TLSArtifactsPersister(
                 secretsClientMock, "serviceName");
 
@@ -116,9 +111,6 @@ public class TLSArtifactsPersisterTest {
 
     @Test
     public void testCleanUpSecrets() throws Exception {
-        SecretNameGenerator secretNameGenerator = new SecretNameGenerator(
-                "serviceName", "taskName", "name");
-
         TLSArtifactsPersister persister = new TLSArtifactsPersister(
                 secretsClientMock, "serviceName");
 
@@ -135,9 +127,6 @@ public class TLSArtifactsPersisterTest {
 
     @Test
     public void testCleanUpSecretsWhenNoStored() throws Exception {
-        SecretNameGenerator secretNameGenerator = new SecretNameGenerator(
-                "serviceName", "taskName", "name");
-
         TLSArtifactsPersister persister = new TLSArtifactsPersister(
                 secretsClientMock, "serviceName");
 

@@ -37,9 +37,16 @@ public class TLSEvaluationStageTest {
     @Mock
     private TLSArtifactsGenerator tlsArtifactsGeneratorMock;
 
+    private SecretNameGenerator secretNameGenerator;
+
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
+
+        secretNameGenerator = new SecretNameGenerator(
+                TestConstants.SERVICE_NAME,
+                TestConstants.TASK_NAME,
+                "test-tls");
     }
 
     private static PodInstanceRequirement getRequirementWithTransportEncryption(
@@ -131,11 +138,6 @@ public class TLSEvaluationStageTest {
         verify(tlsArtifactsPersisterMock, times(1))
                 .persist(Matchers.any(), Matchers.any());
 
-        SecretNameGenerator secretNameGenerator = new SecretNameGenerator(
-                TestConstants.SERVICE_NAME,
-                TestConstants.TASK_NAME,
-                "test-tls");
-
         Protos.ContainerInfo container = podInfoBuilder
                 .getTaskBuilder(TestConstants.TASK_NAME)
                 .getExecutor()
@@ -176,11 +178,6 @@ public class TLSEvaluationStageTest {
                 .isArtifactComplete(Matchers.any());
         verify(tlsArtifactsPersisterMock, times(1))
                 .persist(Matchers.any(), Matchers.any());
-
-        SecretNameGenerator secretNameGenerator = new SecretNameGenerator(
-                TestConstants.SERVICE_NAME,
-                TestConstants.TASK_NAME,
-                "test-tls");
 
         Protos.ContainerInfo container = podInfoBuilder
                 .getTaskBuilder(TestConstants.TASK_NAME)
@@ -225,11 +222,6 @@ public class TLSEvaluationStageTest {
                 .isArtifactComplete(Matchers.any());
         verify(tlsArtifactsPersisterMock, never())
                 .persist(Matchers.any(), Matchers.any());
-
-        SecretNameGenerator secretNameGenerator = new SecretNameGenerator(
-                TestConstants.SERVICE_NAME,
-                TestConstants.TASK_NAME,
-                "test-tls");
 
         Protos.ContainerInfo container = podInfoBuilder
                 .getTaskBuilder(TestConstants.TASK_NAME)

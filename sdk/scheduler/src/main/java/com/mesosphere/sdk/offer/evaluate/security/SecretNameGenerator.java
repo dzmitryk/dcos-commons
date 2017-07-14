@@ -8,18 +8,18 @@ import java.util.Collection;
  */
 public class SecretNameGenerator {
 
-    private String serviceName;
+    private String namespace;
     private String taskName;
     private String transportEncryptionName;
 
-    public SecretNameGenerator(String serviceName, String taskName, String transportEncryptionName) {
-        this.serviceName = serviceName;
+    public SecretNameGenerator(String namespace, String taskName, String transportEncryptionName) {
+        this.namespace = namespace;
         this.transportEncryptionName = transportEncryptionName;
         this.taskName = taskName;
     }
 
     public String getTaskSecretsNamespace() {
-        return String.format("%s/%s/%s", serviceName, taskName, transportEncryptionName);
+        return String.format("%s/%s/%s", namespace, taskName, transportEncryptionName);
     }
 
     public Collection<String> getAllSecretPaths() {
@@ -81,6 +81,7 @@ public class SecretNameGenerator {
     }
 
     // This should get removed once secrets store will support binary data
+    // @see DCOS-16005
     private String withBase64Suffix(String path) {
         return path + ".base64";
     }

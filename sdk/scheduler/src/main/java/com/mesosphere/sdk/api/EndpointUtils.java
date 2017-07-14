@@ -22,8 +22,7 @@ public class EndpointUtils {
         private final String vipName;
         private final int vipPort;
 
-        @VisibleForTesting
-        VipInfo(String vipName, int vipPort) {
+        public VipInfo(String vipName, int vipPort) {
             this.vipName = vipName;
             this.vipPort = vipPort;
         }
@@ -79,12 +78,18 @@ public class EndpointUtils {
     /**
      * Returns the correct L4LB VIP endpoint for the provided task and port running within the provided service.
      */
-    public static String toVipEndpoint(String serviceName, VipInfo vipInfo) {
-        String hostname = String.format("%s.%s.%s",
+    public static String toVipHostname(String serviceName, VipInfo vipInfo) {
+        return String.format("%s.%s.%s",
                 removeSlashes(vipInfo.getVipName()),
                 removeSlashes(serviceName),
                 Constants.VIP_HOST_TLD);
-        return toEndpoint(hostname, vipInfo.getVipPort());
+    }
+
+    /**
+     * Returns the correct L4LB VIP endpoint for the provided task and port running within the provided service.
+     */
+    public static String toVipEndpoint(String serviceName, VipInfo vipInfo) {
+        return toEndpoint(toVipHostname(serviceName, vipInfo), vipInfo.getVipPort());
     }
 
     /**
