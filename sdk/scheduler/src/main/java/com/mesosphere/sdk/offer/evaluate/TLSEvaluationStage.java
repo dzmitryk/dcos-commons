@@ -11,7 +11,6 @@ import com.mesosphere.sdk.dcos.http.DcosHttpClientBuilder;
 import com.mesosphere.sdk.dcos.http.URLHelper;
 import com.mesosphere.sdk.dcos.secrets.DefaultSecretsClient;
 import com.mesosphere.sdk.offer.MesosResourcePool;
-import com.mesosphere.sdk.offer.TaskUtils;
 import com.mesosphere.sdk.offer.evaluate.security.SecretNameGenerator;
 import com.mesosphere.sdk.offer.evaluate.security.TLSArtifacts;
 import com.mesosphere.sdk.offer.evaluate.security.TLSArtifactsGenerator;
@@ -74,6 +73,7 @@ public class TLSEvaluationStage implements OfferEvaluationStage {
 
             SecretNameGenerator secretNameGenerator = new SecretNameGenerator(
                     serviceName,
+                    podInfoBuilder.getPodInstance().getName(),
                     taskName,
                     transportEncryptionName);
 

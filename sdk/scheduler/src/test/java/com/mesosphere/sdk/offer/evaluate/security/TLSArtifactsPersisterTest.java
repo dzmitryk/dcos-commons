@@ -42,7 +42,7 @@ public class TLSArtifactsPersisterTest {
     public void init() {
         MockitoAnnotations.initMocks(this);
         secretNameGenerator = new SecretNameGenerator(
-                "serviceName", "taskName", "name");
+                "serviceName", "podName","taskName", "name");
     }
 
     @Test

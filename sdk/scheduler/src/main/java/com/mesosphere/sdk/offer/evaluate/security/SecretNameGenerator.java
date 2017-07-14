@@ -8,18 +8,20 @@ import java.util.Collection;
  */
 public class SecretNameGenerator {
 
-    private String namespace;
-    private String taskName;
-    private String transportEncryptionName;
+    private final String podName;
+    private final String namespace;
+    private final String taskName;
+    private final String transportEncryptionName;
 
-    public SecretNameGenerator(String namespace, String taskName, String transportEncryptionName) {
+    public SecretNameGenerator(String namespace, String podName, String taskName, String transportEncryptionName) {
         this.namespace = namespace;
-        this.transportEncryptionName = transportEncryptionName;
+        this.podName = podName;
         this.taskName = taskName;
+        this.transportEncryptionName = transportEncryptionName;
     }
 
     public String getTaskSecretsNamespace() {
-        return String.format("%s/%s/%s", namespace, taskName, transportEncryptionName);
+        return String.format("%s/%s/%s/%s", namespace, podName, taskName, transportEncryptionName);
     }
 
     public Collection<String> getAllSecretPaths() {
