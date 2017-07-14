@@ -47,7 +47,6 @@ public class YAMLServiceSpecFactoryTest {
                 .setFileReader(mockFileReader)
                 .build();
         Assert.assertNotNull(serviceSpec);
-        Assert.assertEquals(Integer.valueOf(123), Integer.valueOf(serviceSpec.getApiPort()));
     }
 
     @Test
