@@ -31,7 +31,10 @@ public class ServiceSpecTest extends BaseServiceSpecTest {
                 "HELLO_SECRET2", "hello-world/secret2",
                 "WORLD_SECRET1", "hello-world/secret1",
                 "WORLD_SECRET2", "hello-world/secret2",
-                "WORLD_SECRET3", "hello-world/secret3");
+                "WORLD_SECRET3", "hello-world/secret3",
+
+                "KEYSTORE_APP_VERSION", "0.1-SNAPSHOT",
+                "NGINX_CONTAINER_VERSION", "0.1");
     }
 
     @Test

@@ -28,6 +28,12 @@ NGINX_TASK_HTTPS_PORT_NAME = 'nginx-https'
 # Default keystore passphrase which is hardcoded in dcos-commons implementation
 KEYSTORE_PASS = "notsecure"
 
+# Both these files are downloaded from single `keystore-app-{VERSION}.zip`
+# artfiact. For more details see `testing/tls/keystore` directory in this
+# project.
+KEYSTORE_APP_JAR_NAME = 'keystore-app-0.1-SNAPSHOT-all.jar'
+KEYSTORE_APP_CONFIG_NAME = 'integration-test.yml'
+
 
 def create_service_account(name, secret_name=None):
     """
@@ -85,7 +91,7 @@ def dcos_security_cli():
     Installs the dcos enterprise cli.
     """
 
-    cmd.run_cli("package install dcos-enterprise-cli")
+    cmd.run_cli("package install --yes dcos-enterprise-cli")
 
 
 @pytest.fixture(scope='module')
@@ -141,8 +147,8 @@ def test_java_truststore(hello_world_service):
     # certificate from keystore and if CLI client can verify certificate
     # with custom trustostore configuration.
     command = _java_command(
-        'java -jar dropwizard-example-1.2.0-SNAPSHOT.jar tlstest '
-        'example.tls.yml '
+        'java -jar ' + KEYSTORE_APP_JAR_NAME + ' truststoretest '
+        'integration-test.yml '
         'https://' + hosts.vip_host(
             PACKAGE_NAME, NGINX_TASK_HTTPS_PORT_NAME))
     output = task_exec(task_id, command)
@@ -182,13 +188,13 @@ def test_tls_basic_artifacts(hello_world_service):
 
 def test_java_keystore(hello_world_service):
     """
-    Java dropwizard application presents itself with provided TLS certificate
+    Java `keystore-app` presents itself with provided TLS certificate
     from keystore.
     """
     task_id = tasks.get_task_ids(PACKAGE_NAME, 'artifacts')[0]
     assert task_id
 
-    # Make a curl request from artifacts container to dropwizard application
+    # Make a curl request from artifacts container to `keystore-app`
     # and make sure that mesos curl can verify certificate served by app
     curl = (
         'curl -v -i '
@@ -211,15 +217,15 @@ def test_tls_nginx(hello_world_service):
     certificate.
     """
 
-    # Use dropwizard CLI example app to run request against NGINX container
-    # to verify that nginx presents itself with end-entity certificate
-    # that can be verified by dropwizard CLI example app.
+    # Use keystore-app `truststoretest` CLI command to run request against
+    # the NGINX container to verify that nginx presents itself with end-entity
+    # certificate that can be verified by with truststore.
     task_id = tasks.get_task_ids(PACKAGE_NAME, 'keystore')[0]
     assert task_id
 
     command = _java_command(
-        'java -jar dropwizard-example-1.2.0-SNAPSHOT.jar tlstest '
-        'example.tls.yml '
+        'java -jar ' + KEYSTORE_APP_JAR_NAME + ' truststoretest '
+        'integration-test.yml '
         'https://' + hosts.vip_host(
             PACKAGE_NAME, NGINX_TASK_HTTPS_PORT_NAME) + '/')
     output = task_exec(task_id, command)

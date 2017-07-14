@@ -41,8 +41,7 @@ pods:
       dcos:
     uris:
       - {{BOOTSTRAP_URI}}
-      - "https://s3-us-west-2.amazonaws.com/infinity-artifacts/testing/tls/dropwizard-example-1.2.0-SNAPSHOT.jar"
-      - "https://s3-us-west-2.amazonaws.com/infinity-artifacts/testing/tls/example.tls.yml"
+      - https://s3-us-west-2.amazonaws.com/infinity-artifacts/testing/tls/keystore-app-{{KEYSTORE_APP_VERSION}}.zip
     tasks:
       webserver:
         goal: RUNNING
@@ -52,11 +51,9 @@ pods:
 
                 export JAVA_HOME=$(ls -d $MESOS_SANDBOX/jre*/); export JAVA_HOME=${JAVA_HOME%/}; export PATH=$(ls -d $JAVA_HOME/bin):$PATH;
 
-                java -jar dropwizard-example-1.2.0-SNAPSHOT.jar server example.tls.yml
+                java -jar keystore-app-{{KEYSTORE_APP_VERSION}}-all.jar server integration-test.yml
         cpus: 0.5
         memory: 512
-        env:
-          SLEEP_DURATION: {{SLEEP_DURATION}}
         health-check:
           cmd: stat dropwizard.keystore &> /dev/null
           interval: 5
@@ -78,7 +75,7 @@ pods:
     count: {{HELLO_COUNT}}
     uris:
       - {{BOOTSTRAP_URI}}
-    image: mesosphere/dcos-commons-tls-nginx:0.1
+    image: mesosphere/dcos-commons-tls-nginx:{{NGINX_CONTAINER_VERSION}}
     networks:
       dcos:
     tasks:
